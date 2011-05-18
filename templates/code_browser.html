@@ -1,0 +1,115 @@
+$def with (title="CodeBrow", root_dir="/", code=None )
+
+<head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"> 
+    <title>
+$if title:  $title\
+    </title> 
+    <script src="http://yui.yahooapis.com/3.1.1/build/yui/yui-min.js"></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset.css" type="text/css"> 
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssfonts/fonts.css" type="text/css"> 
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssbase/base.css" type="text/css"> 
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssgrids/grids.css" type="text/css"> 
+ 
+<style> 
+/* everything below is custom styling to demonstrate how to create a page layout using yui grid units */
+#doc {
+    margin:auto; /* center in viewport */
+    width: 970px; /* fix page width */
+}
+ 
+/* arbitrary content styling */
+#hd, .yui3-g .content, #ft {
+    border: 1px solid #ccc;
+    height: 400px; 
+    margin-right: 2px; /* gutter between columns */
+}
+ 
+#hd, #ft {
+    height: 40px;
+}
+</style> 
+ 
+</head> 
+<div class="hd">
+$:render.header() 
+</div>
+<div class="yui3-g">
+    <div class="yui3-u-1-5">
+        <div class="content" >
+
+<script> 
+YUI().use('cookie', 'node',  function (Y) {
+        var currentProjectName = Y.Cookie.get("current_project_name");
+        var currentServerName= Y.Cookie.get("current_server");
+
+	var node = Y.one('#current_project');
+      	node.setContent(currentProjectName);
+
+	var node = Y.one('#current_server');
+      	node.setContent(currentServerName);
+});
+
+</script>
+
+<h3>current project:</h3>
+<div id="current_project">
+</div>
+
+<h3>current server:</h3>
+<div id="current_server">
+</div>
+
+<h3>list of available projects on this server:</h3>
+<div id="select_project_name" style=""  class="yui3-scrollview-loading">
+<ul>
+<li><div id="blah"> blah</div> </li>
+<li> blah </li>
+<li> blah </li>
+<li> bl </li>
+</ul>
+</div>
+<script>
+//better to make it an actual link...
+/*
+YUI({ filter: 'raw' }).use("node", function (Y) {
+    var helloWorld = function (e) {
+        alert("Hello World!");
+    };
+    Y.on("click", helloWorld, "#blah");
+});
+*/
+</script>
+
+<h3>search snippet:</h3>
+<div id="search_within_project">
+</div>
+
+        </div>
+    </div>
+    <div class="yui3-u-2-5">
+        <div class="content">
+
+<h3>
+rootdir:
+$if root_dir: $root_dir \
+</h3>
+
+<a href="/filebrowse/$root_dir/..">up</a>
+
+
+
+<h3>code:</h3>
+$:code \
+        </div>
+    </div>
+    <div class="yui3-u-2-5">
+        <div class="content">
+ 
+        </div>
+    </div>
+</div>
+
+<div class="ft">
+$:render.footer()
+</div>
