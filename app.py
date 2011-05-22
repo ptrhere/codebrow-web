@@ -5,6 +5,7 @@ import re
         
 urls = (
     '/select/(.*)', 'select_project',
+    '/list/(.*)', 'list_projects',
     '/filebrowse/(.*)', 'file_browser',
     '/codebrowse/(.*)', 'code_browser',
     '/search/(.*)', 'tag_search',
@@ -15,10 +16,12 @@ render = web.template.render('templates/')
 
 # define functions we use in our templates here:
 web.template.Template.globals.update(dict(
-  datestr = web.datestr,
   render = render
 ))
 
+
+# contacts backend and parses (JSONi) answer
+#
 def JSONrequest(server, port, url):
 	httpconn = httplib.HTTPConnection(server,port)
 	httpreq = httpconn.request("GET", url)
@@ -27,6 +30,8 @@ def JSONrequest(server, port, url):
 	parsed = json.loads(content)
 	return parsed
 
+# searches for var in GET/POST and cookies
+#
 def getInput(name, default=None):
 	user_data = web.input()
 	result = default
@@ -38,22 +43,32 @@ def getInput(name, default=None):
 			user_data_cookies = web.cookies()
 			result = user_data_cookies[name]
 		except:
-			print "no web.input["+name+"]";
+			print "no cookies["+name+"]";
 			result = default
 	return result
 
+#list projects available on the backend 
+#
+class list_projects:        
+    def GET(self, name):
+        if not name: 
+            name = 'index'
+        projects = JSONrequest("localhost", 8080,  "/p/")
+	print projects
+        return render.list_projects("browse projects",projects)
+
+# shortcut to select default project
+#
 class select_project:        
     def GET(self, name):
         if not name: 
             name = 'index'
-	#i = web.input()
-	#lineNumber = web.input(l=-1)['l']
-	#line = lineNumber
         projects = JSONrequest("localhost", 8080,  "/p/")
 	web.setcookie("current_project_name", projects['name'] )
-        #return render.select_project(line,code)
 	return "<a href='http://localhost:8081/filebrowse/'>project</a>";
 
+# browse the list of the projects' files and folders
+#
 class file_browser:        
     def GET(self, filepath):
         if not filepath: 
@@ -65,6 +80,9 @@ class file_browser:
 	cd_parsed = JSONrequest("localhost", 8080,  "/fm/"+current_project_name+ "/"+filepath)
         return render.file_browser("File Browser", cd_parsed["rootdirectories"], cd_parsed["data"])
 
+
+# helper function for code highlighting
+#
 in_comment = False
 line_number = 1
 
@@ -89,6 +107,8 @@ def repl(m):
 			result = selected
 	return result
 
+# browse the code -- tags are hyperlinked
+#
 class code_browser:      
     def GET(self, filepath):
         if not filepath: 
@@ -103,6 +123,8 @@ class code_browser:
 	raw_code = re.sub(r"(\n|\/\/|\b[a-zA-Z-_][a-zA-Z0-9_\/-]*)",repl,raw_code)
         return render.code_browser("File Browser", cd_parsed["rootdirectories"], raw_code)
 
+# search a certain tag
+#
 class tag_search:
     def GET(self, name):
         if not name:
@@ -110,14 +132,11 @@ class tag_search:
         tagname = name
         return render.tag(tagname)
 
-
+# show user's browsing history 
+#
 class show_history:        
     def GET(self, name):
-        if not name: 
-            name = 'index'
-	lineNumber = web.input(l=-1)['l']
-	line = lineNumber
-	code = "ablhabalkjsad;lj"
+	return "not implemented";
 
 if __name__ == "__main__":
     web.webapi.internalerror = web.debugerror
